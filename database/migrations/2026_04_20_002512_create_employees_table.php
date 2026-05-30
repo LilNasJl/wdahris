@@ -45,6 +45,7 @@ return new class extends Migration
             $table->double('monthly_rate');
             $table->double('allowance');
 
+            $table->softDeletes();
             $table->timestamps();
         });
     }
