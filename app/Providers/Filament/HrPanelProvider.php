@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -49,6 +50,9 @@ class HrPanelProvider extends PanelProvider
 
                 NavigationGroup::make()
                     ->label('Compliance & Benefits'),
+
+                NavigationGroup::make()
+                    ->label('ACCOUNT MANAGEMENT'),
             ])
             ->colors([
                 'primary' => Color::Sky,
@@ -62,6 +66,12 @@ class HrPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+            ])
+            ->plugins([
+                FilamentShieldPlugin::make()
+                    ->navigationGroup('ACCOUNT MANAGEMENT')
+                    ->navigationLabel('Filament Roles Page')
+                    ->navigationSort(1),
             ])
             ->middleware([
                 EncryptCookies::class,

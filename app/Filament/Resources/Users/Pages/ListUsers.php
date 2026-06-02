@@ -11,6 +11,11 @@ class ListUsers extends ListRecords
     protected static string $resource = UserResource::class;
     // protected ?string $subheading = 'Manage and view employee acounts';
 
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
+
     protected function getHeaderActions(): array
     {
         return [

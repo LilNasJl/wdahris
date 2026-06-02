@@ -49,6 +49,7 @@ class LeaveForm
                                     LeaveCreditService::VACATION => LeaveCreditService::VACATION,
                                     LeaveCreditService::SICK => LeaveCreditService::SICK,
                                     LeaveCreditService::HALFDAY => LeaveCreditService::HALFDAY,
+                                    LeaveCreditService::BIRTHDAY => LeaveCreditService::BIRTHDAY,
                                 ])
                                 ->searchable()
                                 ->required(),

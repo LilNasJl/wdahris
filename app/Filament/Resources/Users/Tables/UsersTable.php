@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Models\User;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -29,8 +30,23 @@ class UsersTable
                     ->label('ID No.')
                     ->badge()
                     ->formatStateUsing(fn ($state) => 'A685-'.$state),
-                TextColumn::make('name')
-                    ->label('Account Name')
+                TextColumn::make('employee_full_name')
+                    ->label('Employee Fullname')
+                    ->state(fn (User $record): string => $record->employee?->full_name ?? $record->username ?? 'N/A')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where(function (Builder $query) use ($search): void {
+                            $query
+                                ->where('username', 'like', "%{$search}%")
+                                ->orWhereHas('employee', function (Builder $query) use ($search): void {
+                                    $query
+                                        ->where('firstname', 'like', "%{$search}%")
+                                        ->orWhere('middlename', 'like', "%{$search}%")
+                                        ->orWhere('lastname', 'like', "%{$search}%");
+                                });
+                        });
+                    }),
+                TextColumn::make('username')
+                    ->label('Username')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('email')

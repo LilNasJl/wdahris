@@ -3,9 +3,10 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Deduction;
+use App\Models\Designation;
 use App\Models\Employee as ModelsEmployee;
 use App\Models\EmployeeDeduction;
-use Filament\Actions\Action;
+use App\Models\User;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
@@ -16,6 +17,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -108,7 +110,17 @@ class EmployeeDetailsTable extends TableWidget
                                         ])
                                         ->required(),
 
-                                    
+                                    TextInput::make('email')
+                                        ->label('Email Address')
+                                        ->email()
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->unique(
+                                            table: User::class,
+                                            column: 'email',
+                                            ignorable: fn (?ModelsEmployee $record): ?User => $record?->user,
+                                        ),
+
                                     TextInput::make('mobile')
                                         ->label('Mobile #')
                                         ->tel()
@@ -192,7 +204,14 @@ class EmployeeDetailsTable extends TableWidget
                         ->schema([
                             Select::make('designation_id')
                                 ->relationship('designation', 'title')
+                                ->live()
+                                ->afterStateUpdated(fn (Set $set, mixed $state) => $set('salary_grade', Designation::query()->whereKey($state)->value('salary_grade') ?? ''))
                                 ->required(),
+
+                            TextInput::make('salary_grade')
+                                ->label('Salary Grade')
+                                ->required()
+                                ->maxLength(100),
 
                             Select::make('department_id')
                                 ->relationship('department', 'name')
@@ -304,8 +323,8 @@ class EmployeeDetailsTable extends TableWidget
                     ->label('ID No.')
                     ->badge()
                     ->formatStateUsing(
-                        fn(ModelsEmployee $record):string =>collect(
-                            'A685-' . $record->uid,
+                        fn (ModelsEmployee $record): string => collect(
+                            'A685-'.$record->uid,
                         )->filter()->implode(' ')
                     )
                     ->searchable()
@@ -340,52 +359,66 @@ class EmployeeDetailsTable extends TableWidget
             ->recordActions([
 
                 ActionGroup::make([
-                      ViewAction::make()
-                    ->modalIcon(Heroicon::UserCircle)
-                    ->modalHeading('View Employee Details')
-                    ->schema($this->getEmployeeFormSchema())
-                    ->mutateRecordDataUsing(function (array $data, ModelsEmployee $record): array {
-                        $data['deductions'] = $this->getDeductionState($record);
+                    ViewAction::make()
+                        ->modalIcon(Heroicon::UserCircle)
+                        ->modalHeading('View Employee Details')
+                        ->schema($this->getEmployeeFormSchema())
+                        ->mutateRecordDataUsing(function (array $data, ModelsEmployee $record): array {
+                            $data['deductions'] = $this->getDeductionState($record);
+                            $data['email'] = $record->email ?: $record->user?->email;
+                            $data['salary_grade'] = $record->designation?->salary_grade;
 
-                        return $data;
-                    }),
+                            return $data;
+                        }),
 
-                EditAction::make()
-                    ->modalIcon(Heroicon::UserCircle)
-                    ->modalHeading('Edit Employee Details')
-                    ->schema($this->getEmployeeFormSchema())
-                    ->mutateRecordDataUsing(function (array $data, ModelsEmployee $record): array {
-                        $data['deductions'] = $this->getDeductionState($record);
+                    EditAction::make()
+                        ->modalIcon(Heroicon::UserCircle)
+                        ->modalHeading('Edit Employee Details')
+                        ->schema($this->getEmployeeFormSchema())
+                        ->mutateRecordDataUsing(function (array $data, ModelsEmployee $record): array {
+                            $data['deductions'] = $this->getDeductionState($record);
+                            $data['email'] = $record->email ?: $record->user?->email;
+                            $data['salary_grade'] = $record->designation?->salary_grade;
 
-                        return $data;
-                    })
-                    ->using(function (ModelsEmployee $record, array $data): Model {
-                        $deductions = $data['deductions'] ?? [];
+                            return $data;
+                        })
+                        ->using(function (ModelsEmployee $record, array $data): Model {
+                            $deductions = $data['deductions'] ?? [];
+                            $salaryGrade = $data['salary_grade'] ?? null;
+                            $email = $data['email'] ?? null;
 
-                        unset($data['deductions']);
+                            unset($data['deductions'], $data['salary_grade']);
 
-                        DB::transaction(function () use ($record, $data, $deductions): void {
-                            $record->update($data);
+                            DB::transaction(function () use ($record, $data, $deductions, $salaryGrade, $email): void {
+                                $record->update($data);
 
-                            foreach ($deductions as $deductionId => $amount) {
-                                EmployeeDeduction::updateOrCreate(
-                                    [
-                                        'employee_id' => $record->id,
-                                        'deduction_id' => $deductionId,
-                                    ],
-                                    [
-                                        'amount' => $amount ?: 0,
-                                    ],
-                                );
-                            }
-                        });
+                                if (filled($email)) {
+                                    $record->user?->update(['email' => $email]);
+                                }
 
-                        return $record->refresh();
-                    }),
+                                if (filled($salaryGrade) && $record->designation_id) {
+                                    Designation::query()
+                                        ->whereKey($record->designation_id)
+                                        ->update(['salary_grade' => $salaryGrade]);
+                                }
+
+                                foreach ($deductions as $deductionId => $amount) {
+                                    EmployeeDeduction::updateOrCreate(
+                                        [
+                                            'employee_id' => $record->id,
+                                            'deduction_id' => $deductionId,
+                                        ],
+                                        [
+                                            'amount' => $amount ?: 0,
+                                        ],
+                                    );
+                                }
+                            });
+
+                            return $record->refresh();
+                        }),
                 ])
-                ->icon(Heroicon::EllipsisHorizontal)
-                
-              
+                    ->icon(Heroicon::EllipsisHorizontal),
 
             ])
             ->toolbarActions([

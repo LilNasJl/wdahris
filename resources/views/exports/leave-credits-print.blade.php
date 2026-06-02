@@ -181,12 +181,12 @@
                         <td class="center">{{ $row['from_label'] }}</td>
                         <td class="center">{{ $row['to_label'] }}</td>
                         <td>{{ $row['particulars'] }}</td>
-                        <td class="right">{{ blank($row['vacation_earned']) ? '' : number_format((float) $row['vacation_earned'], 2) }}</td>
-                        <td class="right">{{ is_numeric($row['vacation_absence']) ? number_format((float) $row['vacation_absence'], 2) : $row['vacation_absence'] }}</td>
-                        <td class="right">{{ number_format((float) $row['vacation_balance'], 2) }}</td>
-                        <td class="right">{{ blank($row['sick_earned']) ? '' : number_format((float) $row['sick_earned'], 2) }}</td>
-                        <td class="right">{{ is_numeric($row['sick_absence']) ? number_format((float) $row['sick_absence'], 2) : $row['sick_absence'] }}</td>
-                        <td class="right">{{ number_format((float) $row['sick_balance'], 2) }}</td>
+                        <td class="right">{{ blank($row['vacation_earned']) ? '' : number_format((float) $row['vacation_earned'], 3) }}</td>
+                        <td class="right">{{ is_numeric($row['vacation_absence']) ? number_format((float) $row['vacation_absence'], 3) : $row['vacation_absence'] }}</td>
+                        <td class="right">{{ number_format((float) $row['vacation_balance'], 3) }}</td>
+                        <td class="right">{{ blank($row['sick_earned']) ? '' : number_format((float) $row['sick_earned'], 3) }}</td>
+                        <td class="right">{{ is_numeric($row['sick_absence']) ? number_format((float) $row['sick_absence'], 3) : $row['sick_absence'] }}</td>
+                        <td class="right">{{ number_format((float) $row['sick_balance'], 3) }}</td>
                         <td>{{ $row['action_taken'] }}</td>
                     </tr>
                 @empty

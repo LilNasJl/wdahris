@@ -2,17 +2,14 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use App\Models\Department;
-use App\Models\Designation;
+use App\Models\Counter;
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use App\Models\Counter;
-use App\Models\User;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
-use League\Uri\Idna\Option;
 
 class UserForm
 {
@@ -33,7 +30,7 @@ class UserForm
                                 $counter = Counter::first();
                                 $next = $counter ? $counter->uid + 1 : 1;
 
-                                return 'A685-' . str_pad($next, 5, '0', STR_PAD_LEFT);
+                                return 'A685-'.str_pad($next, 5, '0', STR_PAD_LEFT);
                             })
                             ->disabled()        // User cannot edit it
                             ->dehydrated()      // ⚠️ Critical: disabled fields are excluded from submitted data without this
@@ -50,7 +47,7 @@ class UserForm
                         Select::make('gender')
                             ->options([
                                 'male' => 'Male',
-                                'female' => 'Female'
+                                'female' => 'Female',
                             ]),
                         DatePicker::make('birthdate')
                             ->required(),
@@ -64,17 +61,26 @@ class UserForm
                             ->relationship('department', 'name')
                             ->required()
                             ->columnSpanFull(),
-                       
-                        
+
                     ])->columns(2), // Fits 3 names across one row nicely
 
-                 // Group: Employee Account Details
+                // Group: Employee Account Details
                 Section::make('Employee Account Details')
                     ->description('Primary login and security information.')
                     ->schema([
-                        TextInput::make('name')
-                            ->placeholder('e.g., Juan Dela Cruz')
-                            ->required(),
+                        TextInput::make('username')
+                            ->placeholder('e.g., juandelacruz')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(
+                                table: User::class,
+                                column: 'username',
+                                ignoreRecord: true,
+                            )
+                            ->validationAttribute('username')
+                            ->validationMessages([
+                                'unique' => 'This username is already registered.',
+                            ]),
 
                         TextInput::make('email')
                             ->placeholder('e.g., juandelacruz@gmail.com')
@@ -98,10 +104,6 @@ class UserForm
                             ->dehydrated(fn ($state) => filled($state))
                             ->required(fn (string $context): bool => $context === 'create'),
                     ])->columns(2),
-
-
-                
-
 
             ]);
     }

@@ -8,6 +8,7 @@ use App\Filament\Widgets\ServiceCreditsProfileTable;
 use App\Models\Employee;
 use App\Models\ServiceCredits as ServiceCreditRecord;
 use App\Models\ServiceCreditSignatory;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
@@ -17,6 +18,8 @@ use Override;
 
 class ServiceCreditsProfilePage extends Page
 {
+    use HasPageShield;
+
     public Employee $employee;
 
     protected string $view = 'filament.pages.service-credits-profile-page';

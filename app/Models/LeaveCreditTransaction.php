@@ -28,10 +28,10 @@ class LeaveCreditTransaction extends Model
         return [
             'from_date' => 'date',
             'to_date' => 'date',
-            'vacation_earned' => 'decimal:2',
-            'vacation_absence' => 'decimal:2',
-            'sick_earned' => 'decimal:2',
-            'sick_absence' => 'decimal:2',
+            'vacation_earned' => 'decimal:3',
+            'vacation_absence' => 'decimal:3',
+            'sick_earned' => 'decimal:3',
+            'sick_absence' => 'decimal:3',
             'is_lwop' => 'boolean',
         ];
     }

@@ -88,11 +88,11 @@ class EmployeeLeaveCreditLedgerTable extends TableWidget
 
     protected function formatNumeric(mixed $value): string
     {
-        return blank($value) ? '' : number_format((float) $value, 2);
+        return blank($value) ? '' : number_format((float) $value, 3);
     }
 
     protected function formatMixed(mixed $value): string
     {
-        return is_numeric($value) ? number_format((float) $value, 2) : ($value ?: '');
+        return is_numeric($value) ? number_format((float) $value, 3) : ($value ?: '');
     }
 }

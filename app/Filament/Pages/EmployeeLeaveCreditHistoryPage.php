@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Widgets\EmployeeLeaveCreditLedgerTable;
 use App\Models\Employee;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Pages\Page;
@@ -12,6 +13,8 @@ use Override;
 
 class EmployeeLeaveCreditHistoryPage extends Page
 {
+    use HasPageShield;
+
     public Employee $employee;
 
     protected string $view = 'filament.pages.employee-leave-credit-history-page';

@@ -8,6 +8,7 @@ use App\Filament\Widgets\EmployeeLeaveEarningsTable;
 use App\Models\Employee;
 use App\Models\LeaveCreditEarned;
 use App\Services\LeaveCreditService;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
@@ -20,6 +21,8 @@ use Override;
 
 class EmployeeLeaveCreditsPage extends Page
 {
+    use HasPageShield;
+
     public Employee $employee;
 
     protected string $view = 'filament.pages.employee-leave-credits-page';
@@ -83,11 +86,11 @@ class EmployeeLeaveCreditsPage extends Page
                 ->schema([
                     Placeholder::make('current_points')
                         ->label('Current Points')
-                        ->content(fn (): string => number_format(LeaveCreditService::availableCredits($this->employee->id)['total'], 2)),
+                        ->content(fn (): string => number_format(LeaveCreditService::availableCredits($this->employee->id)['total'], 3)),
 
                     Placeholder::make('current_vacation_points')
                         ->label('Current Vacation Leave Points')
-                        ->content(fn (): string => number_format(LeaveCreditService::availableCredits($this->employee->id)['vacation'], 2)),
+                        ->content(fn (): string => number_format(LeaveCreditService::availableCredits($this->employee->id)['vacation'], 3)),
 
                     TextInput::make('points')
                         ->label('Points to Convert')

@@ -29,13 +29,13 @@ class EmployeeLeaveCreditCards extends StatsOverviewWidget
         $credits = LeaveCreditService::availableCredits((int) $this->employeeId);
 
         return [
-            Stat::make('Vacation Leave', number_format($credits['vacation'], 2))
+            Stat::make('Vacation Leave', number_format($credits['vacation'], 3))
                 ->icon(Heroicon::CalendarDays),
 
-            Stat::make('Sick Leave', number_format($credits['sick'], 2))
+            Stat::make('Sick Leave', number_format($credits['sick'], 3))
                 ->icon(Heroicon::Heart),
 
-            Stat::make('Leave Credits', number_format($credits['total'], 2))
+            Stat::make('Leave Credits', number_format($credits['total'], 3))
                 ->icon(Heroicon::ClipboardDocumentList),
         ];
     }

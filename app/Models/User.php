@@ -12,23 +12,44 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use Throwable;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
+#[Fillable(['name', 'username', 'email', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     public function canAccessPanel(Panel $panel): bool
     {
         $role = strtolower((string) $this->role);
+        $isSuperAdmin = $role === 'superadmin' || $this->hasShieldRole(config('filament-shield.super_admin.name', 'super_admin'));
 
         return match ($panel->getId()) {
-            'hr' => in_array($role, ['hr', 'superadmin'], true),
-            'personnel' => $role === 'employee',
+            'hr' => $isSuperAdmin || $role === 'hr' || $this->hasShieldRole('hr'),
+            'personnel' => $role === 'employee' || $this->hasShieldRole('employee'),
             default => false,
         };
+    }
+
+    public function getFilamentName(): string
+    {
+        return $this->employee?->full_name
+            ?? $this->username
+            ?? $this->name
+            ?? $this->email
+            ?? 'User';
+    }
+
+    protected function hasShieldRole(string $role): bool
+    {
+        try {
+            return $this->hasRole($role);
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     protected static function booted(): void

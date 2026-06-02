@@ -14,6 +14,13 @@ class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['name'] = $data['username'];
+
+        return $data;
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -25,6 +32,8 @@ class EditUser extends EditRecord
 
     protected function afterSave(): void
     {
+        $this->record->employee?->update(['email' => $this->record->email]);
+
         $users = User::all();
 
         foreach ($users as $user) {

@@ -51,13 +51,13 @@ class EmployeeLeaveEarningsTable extends TableWidget
                 TextColumn::make('vacation_earned')
                     ->label('VL Earned')
                     ->getStateUsing(fn (LeaveCreditEarned $record): string => in_array($record->leave_type, ['Vacation Leave', 'Vacation and Sick Leave'], true)
-                        ? number_format((float) $record->earned, 2)
+                        ? number_format((float) $record->earned, 3)
                         : ''),
 
                 TextColumn::make('sick_earned')
                     ->label('SL Earned')
                     ->getStateUsing(fn (LeaveCreditEarned $record): string => in_array($record->leave_type, ['Sick Leave', 'Vacation and Sick Leave'], true)
-                        ? number_format((float) $record->earned, 2)
+                        ? number_format((float) $record->earned, 3)
                         : ''),
             ])
             ->recordActions([

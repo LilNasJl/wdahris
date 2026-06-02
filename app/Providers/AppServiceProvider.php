@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Filament\Resources\SystemAccounts\SystemAccountResource;
+use App\Filament\Resources\Users\UserResource;
+use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +23,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        FilamentShield::buildPermissionKeyUsing(function (string $entity, string $affix, string $subject, string $case, string $separator): string {
+            if (in_array($entity, [UserResource::class, SystemAccountResource::class], true)) {
+                $subject = class_basename($entity);
+            }
+
+            return $this->formatShieldPermissionPart($affix, $case)
+                .$separator
+                .$this->formatShieldPermissionPart($subject, $case);
+        });
+    }
+
+    protected function formatShieldPermissionPart(string $value, string $case): string
+    {
+        return match ($case) {
+            'kebab' => Str::of($value)->kebab()->toString(),
+            'pascal' => Str::of($value)->studly()->toString(),
+            'upper_snake' => Str::of($value)->snake()->upper()->toString(),
+            'lower_snake' => Str::of($value)->snake()->lower()->toString(),
+            'camel' => Str::of($value)->camel()->toString(),
+            default => Str::of($value)->snake()->toString(),
+        };
     }
 }

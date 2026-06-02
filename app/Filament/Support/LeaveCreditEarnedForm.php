@@ -32,7 +32,7 @@ class LeaveCreditEarnedForm
                             TextInput::make('earned')
                                 ->label('Earned')
                                 ->numeric()
-                                ->default(LeaveCreditService::DEFAULT_EARNED_POINTS)
+                                ->default(number_format(LeaveCreditService::DEFAULT_EARNED_POINTS, 3, '.', ''))
                                 ->disabled()
                                 ->dehydrated(false),
                         ])

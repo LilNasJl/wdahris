@@ -38,13 +38,13 @@ class DashboardCards extends StatsOverviewWidget
             : 0;
 
         return [
-            Stat::make('Vacation Leave Points', number_format($credits['vacation'], 2))
+            Stat::make('Vacation Leave Points', number_format($credits['vacation'], 3))
                 ->icon(Heroicon::CalendarDays),
 
-            Stat::make('Sick Leave Points', number_format($credits['sick'], 2))
+            Stat::make('Sick Leave Points', number_format($credits['sick'], 3))
                 ->icon(Heroicon::Heart),
 
-            Stat::make('Total Leave Credits', number_format($credits['total'], 2))
+            Stat::make('Total Leave Credits', number_format($credits['total'], 3))
                 ->icon(Heroicon::ClipboardDocumentList),
 
             Stat::make('Pending Leave Request', $pendingLeaveRequests)

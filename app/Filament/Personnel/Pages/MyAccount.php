@@ -27,7 +27,7 @@ class MyAccount extends Page
         $user = Filament::auth()->user();
 
         $this->form->fill([
-            'name' => $user?->name,
+            'username' => $user?->username,
             'email' => $user?->email,
         ]);
     }
@@ -38,9 +38,14 @@ class MyAccount extends Page
             ->components([
                 Group::make()
                     ->schema([
-                        TextInput::make('name')
-                            ->label('Account Name')
+                        TextInput::make('username')
+                            ->label('Username')
                             ->required()
+                            ->unique(
+                                table: User::class,
+                                column: 'username',
+                                ignorable: fn () => Filament::auth()->user(),
+                            )
                             ->maxLength(255),
 
                         TextInput::make('email')
@@ -82,7 +87,8 @@ class MyAccount extends Page
         $data = $this->form->getState();
 
         $updates = [
-            'name' => $data['name'],
+            'name' => $data['username'],
+            'username' => $data['username'],
             'email' => $data['email'],
         ];
 
@@ -93,7 +99,7 @@ class MyAccount extends Page
         $user->update($updates);
 
         $this->form->fill([
-            'name' => $user->name,
+            'username' => $user->username,
             'email' => $user->email,
         ]);
 

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\Leaves\LeaveResource;
 use App\Filament\Widgets\LeaveCreditEmployeeList;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -11,6 +12,8 @@ use Override;
 
 class ManageLeaveCredits extends Page
 {
+    use HasPageShield;
+
     protected string $view = 'filament.pages.manage-leave-credits';
 
     protected static ?string $title = 'Manage Leave Credits';

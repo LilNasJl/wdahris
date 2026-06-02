@@ -18,13 +18,15 @@ class LeaveCreditService
 
     public const HALFDAY = 'Halfday Leave';
 
+    public const BIRTHDAY = 'Birthday Leave';
+
     public const BOTH = 'Vacation and Sick Leave';
 
     public const MONETIZATION = 'Monetization';
 
     public const YEARLY_MAX = 15.0;
 
-    public const DEFAULT_EARNED_POINTS = 1.0;
+    public const DEFAULT_EARNED_POINTS = 1.250;
 
     public const MONETIZATION_POINTS = 20.0;
 
@@ -35,7 +37,7 @@ class LeaveCreditService
 
         $vacationUsed = (float) Leave::query()
             ->where('employee_id', $employeeId)
-            ->whereIn('leave_type', [self::VACATION, self::HALFDAY])
+            ->whereIn('leave_type', [self::VACATION, self::HALFDAY, self::BIRTHDAY])
             ->where('status', '!=', 'Rejected')
             ->where('is_lwop', false)
             ->when($exceptLeaveId, fn ($query) => $query->whereKeyNot($exceptLeaveId))
@@ -54,13 +56,13 @@ class LeaveCreditService
             ->where('source_type', self::MONETIZATION)
             ->sum('vacation_absence');
 
-        $vacation = round($vacationEarned - $vacationUsed - $monetized, 2);
-        $sick = round($sickEarned - $sickUsed, 2);
+        $vacation = round($vacationEarned - $vacationUsed - $monetized, 3);
+        $sick = round($sickEarned - $sickUsed, 3);
 
         return [
             'vacation' => max($vacation, 0),
             'sick' => max($sick, 0),
-            'total' => max(round($vacation + $sick, 2), 0),
+            'total' => max(round($vacation + $sick, 3), 0),
         ];
     }
 
@@ -235,8 +237,8 @@ class LeaveCreditService
                 $sickBalance += (float) $row['sick_earned'];
                 $sickBalance -= (float) $row['sick_absence_value'];
 
-                $row['vacation_balance'] = round($vacationBalance, 2);
-                $row['sick_balance'] = round($sickBalance, 2);
+                $row['vacation_balance'] = round($vacationBalance, 3);
+                $row['sick_balance'] = round($sickBalance, 3);
 
                 unset($row['vacation_absence_value'], $row['sick_absence_value']);
 
@@ -345,7 +347,7 @@ class LeaveCreditService
     {
         $leaveTypes = $bucket === 'sick'
             ? [self::SICK]
-            : [self::VACATION, self::HALFDAY];
+            : [self::VACATION, self::HALFDAY, self::BIRTHDAY];
 
         return Leave::query()
             ->where('employee_id', $earned->employee_id)

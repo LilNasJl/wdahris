@@ -14,12 +14,15 @@ class CreateUser extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['role'] = 'employee';
+        $data['name'] = $data['username'];
 
         return $data;
     }
 
     protected function afterCreate(): void
     {
+        $this->record->employee?->update(['email' => $this->record->email]);
+
         $users = User::all();
 
         foreach ($users as $user) {

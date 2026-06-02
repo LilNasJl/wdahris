@@ -25,7 +25,7 @@ class LeaveCreditEarned extends Model
         return [
             'from_date' => 'date',
             'to_date' => 'date',
-            'earned' => 'decimal:2',
+            'earned' => 'decimal:3',
         ];
     }
 
