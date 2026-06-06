@@ -323,9 +323,7 @@ class EmployeeDetailsTable extends TableWidget
                     ->label('ID No.')
                     ->badge()
                     ->formatStateUsing(
-                        fn (ModelsEmployee $record): string => collect(
-                            'A685-'.$record->uid,
-                        )->filter()->implode(' ')
+                        fn (ModelsEmployee $record): string => ModelsEmployee::employeeIdFromUid($record->uid) ?? 'N/A'
                     )
                     ->searchable()
                     ->sortable(),

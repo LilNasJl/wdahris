@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Models\Employee;
 use App\Models\User;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -29,7 +30,7 @@ class UsersTable
                 TextColumn::make('employee.uid')
                     ->label('ID No.')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => 'A685-'.$state),
+                    ->formatStateUsing(fn ($state): string => Employee::employeeIdFromUid($state) ?? 'N/A'),
                 TextColumn::make('employee_full_name')
                     ->label('Employee Fullname')
                     ->state(fn (User $record): string => $record->employee?->full_name ?? $record->username ?? 'N/A')

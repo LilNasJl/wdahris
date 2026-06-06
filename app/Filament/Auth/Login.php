@@ -8,19 +8,50 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Illuminate\Auth\SessionGuard;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Login extends BaseLogin
 {
+    protected string $view = 'filament.auth.login';
+
+    protected static string $layout = 'filament.auth.layout';
+
+    public function getTitle(): string|Htmlable
+    {
+        return 'Water District Asuncion - HRIS';
+    }
+
     protected function getEmailFormComponent(): Component
     {
         return TextInput::make('username')
             ->label('Username')
+            ->prefixIcon('heroicon-m-user-circle')
+            ->prefixIconColor('primary')
             ->required()
             ->autocomplete('username')
-            ->autofocus();
+            ->autofocus()
+            ->rule('regex:/^\S+$/')
+            ->validationMessages([
+                'regex' => 'The username must not contain spaces.',
+            ]);
+    }
+
+    protected function getPasswordFormComponent(): Component
+    {
+        return TextInput::make('password')
+            ->label(__('filament-panels::auth/pages/login.form.password.label'))
+            ->prefixIcon('heroicon-m-lock-closed')
+            ->prefixIconColor('primary')
+            ->hint(filament()->hasPasswordReset() ? new HtmlString(Blade::render('<x-filament::link :href="filament()->getRequestPasswordResetUrl()" tabindex="-1"> {{ __(\'filament-panels::auth/pages/login.actions.request_password_reset.label\') }}</x-filament::link>')) : null)
+            ->password()
+            ->revealable(filament()->arePasswordsRevealable())
+            ->autocomplete('current-password')
+            ->required();
     }
 
     protected function getCredentialsFromFormData(array $data): array

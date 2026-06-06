@@ -32,7 +32,7 @@ class ServiceCreditsEmployeeList extends TableWidget
                 TextColumn::make('uid')
                     ->label('ID No.')
                     ->badge()
-                    ->prefix('A685-')
+                    ->formatStateUsing(fn ($state): string => Employee::employeeIdFromUid($state) ?? 'N/A')
                     ->searchable(),
                 TextColumn::make('fullname')
                     ->label('Employee Name')

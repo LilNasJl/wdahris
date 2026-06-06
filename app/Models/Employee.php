@@ -112,6 +112,15 @@ class Employee extends Model
         return $this->hasMany(Leave::class, 'employee_id');
     }
 
+    public static function employeeIdFromUid(mixed $uid): ?string
+    {
+        if (blank($uid)) {
+            return null;
+        }
+
+        return 'A685-'.str_pad((string) ((int) $uid), 5, '0', STR_PAD_LEFT);
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim(

@@ -27,7 +27,10 @@ class PersonnelPanelProvider extends PanelProvider
         return $panel
             ->id('personnel')
             ->path('personnel')
-            ->favicon('/wdatransparent.png')
+            ->brandName('Water District Asuncion - HRIS')
+            ->brandLogo(asset('image/wdatransparent.png'))
+            ->brandLogoHeight('42px')
+            ->favicon(asset('image/wdatransparent.png'))
             ->colors([
                 'primary' => Color::Blue,
             ])
