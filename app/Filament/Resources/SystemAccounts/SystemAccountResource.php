@@ -60,6 +60,7 @@ class SystemAccountResource extends Resource
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
         return parent::getRecordRouteBindingEloquentQuery()
+            ->where('username', '!=', 'masteradmin')
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);

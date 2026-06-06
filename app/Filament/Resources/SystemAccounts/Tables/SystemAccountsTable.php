@@ -23,6 +23,7 @@ class SystemAccountsTable
             ->modifyQueryUsing(
                 fn (Builder $query): Builder => $query
                     ->with('roles')
+                    ->where('username', '!=', 'masteradmin')
                     ->where(function (Builder $query): void {
                         $query
                             ->where('role', '!=', 'employee')
