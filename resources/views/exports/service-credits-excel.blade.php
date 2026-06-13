@@ -119,7 +119,7 @@
             <tr>
                 <td class="center">{{ $record->from_date?->format('m/d/Y') }}</td>
                 <td class="center">{{ $record->to_date?->format('m/d/Y') }}</td>
-                <td>{{ $record->designation }}</td>
+                <td>{{ $record->designation }}{{ filled($record->salary_step) ? ' / Step '.$record->salary_step : '' }}</td>
                 <td>{{ $record->status }}</td>
                 <td class="right">{{ blank($record->salary) ? '' : number_format((float) $record->salary, 2) }}</td>
                 <td>{{ $record->station_place }}</td>

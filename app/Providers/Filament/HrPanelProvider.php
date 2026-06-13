@@ -51,6 +51,9 @@ class HrPanelProvider extends PanelProvider
                     ->label('Compliance & Benefits'),
 
                 NavigationGroup::make()
+                    ->label('Settings'),
+
+                NavigationGroup::make()
                     ->label('ACCOUNT MANAGEMENT'),
             ])
             ->colors([

@@ -30,7 +30,7 @@ class ServiceCreditForm
             Section::make('RECORD OF APPOINTMENT')
                 ->schema([
                     Select::make('designation')
-                        ->label('Designation/Step')
+                        ->label('Position Title')
                         ->options(fn (): array => Designation::query()
                             ->orderBy('title')
                             ->pluck('title', 'title')
@@ -40,12 +40,20 @@ class ServiceCreditForm
                         ->required()
                         ->native(false),
 
+                    TextInput::make('salary_step')
+                        ->label('Salary Step')
+                        ->numeric()
+                        ->minValue(1)
+                        ->maxValue(40),
+
                     Select::make('status')
+                        ->label('Employment Status')
                         ->options(self::statusOptions())
                         ->searchable()
                         ->required(),
 
                     TextInput::make('salary')
+                        ->label('Salary Daily Rate')
                         ->numeric()
                         ->prefix('PHP')
                         ->minValue(0),

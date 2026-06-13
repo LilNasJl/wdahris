@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Departments\Schemas;
 
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -25,12 +24,6 @@ class DepartmentForm
                             ->label('Acronym')
                             ->placeholder('e.g., PICTO')
                             ->required(),
-                        Textarea::make('description')
-                            ->placeholder('Description...')
-                            ->label('Department description')
-                            ->maxLength(255)
-                            ->rows(5)
-                            ->columnSpanFull()
                     ])->columns(2),
             ])->columns(1);
     }

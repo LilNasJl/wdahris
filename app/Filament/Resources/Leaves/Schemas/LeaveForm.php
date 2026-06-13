@@ -22,21 +22,11 @@ class LeaveForm
                         Group::make([
                             Select::make('employee_id')
                                 ->label('Employee Name')
+                                ->options(fn (): array => self::employeeOptions())
                                 ->searchable()
+                                ->preload()
                                 ->getSearchResultsUsing(
-                                    fn (string $search) => Employee::query()
-                                        ->whereHas('user', fn ($query) => $query->where('role', 'employee'))
-                                        ->where(function ($query) use ($search): void {
-                                            $query
-                                                ->where('firstname', 'like', "%{$search}%")
-                                                ->orWhere('middlename', 'like', "%{$search}%")
-                                                ->orWhere('lastname', 'like', "%{$search}%");
-                                        })
-                                        ->limit(50)
-                                        ->get()
-                                        ->mapWithKeys(fn (Employee $employee): array => [
-                                            $employee->id => "{$employee->lastname}, {$employee->firstname} {$employee->middlename}",
-                                        ])
+                                    fn (string $search): array => self::employeeOptions($search, 50)
                                 )
                                 ->getOptionLabelUsing(
                                     fn ($value) => optional(Employee::find($value))->full_name
@@ -73,5 +63,28 @@ class LeaveForm
                     ])
                     ->columnSpanFull(),
             ]);
+    }
+
+    private static function employeeOptions(?string $search = null, ?int $limit = null): array
+    {
+        return Employee::query()
+            ->whereHas('user', fn ($query) => $query->where('role', 'employee'))
+            ->when($search, function ($query, string $search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query
+                        ->where('firstname', 'like', "%{$search}%")
+                        ->orWhere('middlename', 'like', "%{$search}%")
+                        ->orWhere('lastname', 'like', "%{$search}%")
+                        ->orWhere('uid', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('lastname')
+            ->orderBy('firstname')
+            ->when($limit, fn ($query, int $limit) => $query->limit($limit))
+            ->get()
+            ->mapWithKeys(fn (Employee $employee): array => [
+                $employee->id => $employee->full_name,
+            ])
+            ->all();
     }
 }

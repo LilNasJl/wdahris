@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Designations\Schemas;
 
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -14,7 +12,7 @@ class DesignationForm
     {
         return $schema
             ->components([
-               Section::make('Designation Details')
+                Section::make('Designation Details')
                     ->description('Add new designation')
                     ->schema([
                         TextInput::make('title')
@@ -22,25 +20,11 @@ class DesignationForm
                             ->placeholder('e.g., Programmer 1')
                             ->maxLength(100)
                             ->required(),
-                         TextInput::make('salary_grade')
+                        TextInput::make('salary_grade')
                             ->label('Salary Grade (SG)')
                             ->placeholder('e.g., SG1')
                             ->maxLength(100)
                             ->required(),
-                        Textarea::make('specification')
-                            ->placeholder('Required skills, education, and traits')
-                            ->label('Job Specification')
-                            ->maxLength(255)
-                            ->rows(3)
-                            ->columnSpanFull()
-                            ->required(),
-                        Textarea::make('description')
-                            ->placeholder('Description...')
-                            ->label('Job Description')
-                            ->maxLength(255)
-                            ->rows(5)
-                            ->columnSpanFull()
-                            ->required()
                     ])->columns(2),
             ])->columns(1);
     }

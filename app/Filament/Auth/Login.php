@@ -2,6 +2,7 @@
 
 namespace App\Filament\Auth;
 
+use App\Models\AccountLog;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Facades\Filament;
@@ -86,6 +87,8 @@ class Login extends BaseLogin
         if (! $user) {
             return $response;
         }
+
+        AccountLog::record($user, 'login');
 
         if (filled($password) && method_exists($guard, 'logoutOtherDevices')) {
             try {

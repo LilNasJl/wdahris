@@ -12,7 +12,6 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Foundation\Console\ViewCacheCommand;
 
 class DesignationsTable
 {
@@ -34,30 +33,26 @@ class DesignationsTable
                     ->badge('danger')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->label('Created At')
-                    ->searchable()
-                    ->sortable(),
             ])
             ->filters([
-                TrashedFilter::make()
+                TrashedFilter::make(),
             ])
             ->recordActions([
-                 ActionGroup::make([
-                        ViewAction::make(),
-                        EditAction::make(),
-                        // DeleteAction::make(),
-                    ])
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    // DeleteAction::make(),
+                ])
                     ->icon('heroicon-m-ellipsis-vertical') // The 3 dots icon
                     ->tooltip('Actions')
                     ->color('primary'),
             ])
             ->toolbarActions([
-                // BulkActionGroup::make([
-                //     DeleteBulkAction::make(),
-                //     ForceDeleteBulkAction::make(),
-                //     RestoreBulkAction::make(),
-                // ]),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                ]),
             ]);
     }
 }

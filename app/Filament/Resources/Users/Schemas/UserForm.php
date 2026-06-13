@@ -2,12 +2,13 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use App\Models\Counter;
+use App\Models\Employee;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,43 +18,77 @@ class UserForm
     {
         return $schema
             ->components([
-
-                // Group: Employee Initial Details
                 Section::make('Employee Initial Details')
                     ->relationship('employee')
                     ->description('Personal identification information.')
                     ->schema([
-                        // 👇 Pre-loaded UID preview — lives inside the relationship section
                         TextInput::make('uid')
-                            ->label('Employee ID (Auto-generated)')
-                            ->default(function (): string {
-                                $counter = Counter::first();
-                                $next = $counter ? $counter->uid + 1 : 1;
+                            ->label('Employee ID #')
+                            ->prefix('A685-')
+                            ->placeholder('00001')
+                            ->mask('99999')
+                            ->formatStateUsing(fn ($state): string => filled($state)
+                                ? str_pad((string) Employee::normalizeEmployeeUid($state), 5, '0', STR_PAD_LEFT)
+                                : '')
+                            ->required()
+                            ->minLength(5)
+                            ->maxLength(5)
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, mixed $state): void {
+                                $username = Employee::employeeIdFromUid($state) ?? '';
 
-                                return 'A685-'.str_pad($next, 5, '0', STR_PAD_LEFT);
+                                $set('../../username', $username);
+                                $set('../username', $username);
+                                $set('username', $username);
                             })
-                            ->disabled()        // User cannot edit it
-                            ->dehydrated()      // ⚠️ Critical: disabled fields are excluded from submitted data without this
+                            ->validationAttribute('employee ID')
+                            ->rules(fn (?User $record): array => [
+                                function (string $attribute, mixed $value, \Closure $fail) use ($record): void {
+                                    $uid = Employee::normalizeEmployeeUid($value);
+
+                                    if ($uid < 1) {
+                                        $fail('The employee ID number must be greater than zero.');
+
+                                        return;
+                                    }
+
+                                    $exists = Employee::withTrashed()
+                                        ->where('uid', $uid)
+                                        ->when($record?->employee, fn ($query, Employee $employee) => $query->whereKeyNot($employee->getKey()))
+                                        ->exists();
+
+                                    if ($exists) {
+                                        $fail('This employee ID is already assigned to another employee.');
+                                    }
+                                },
+                            ])
                             ->columnSpanFull(),
 
-                        TextInput::make('firstname')
-                            ->placeholder('e.g., Juan')
+                        self::upperTextInput('firstname')
+                            ->placeholder('JUAN')
                             ->required(),
-                        TextInput::make('middlename')
-                            ->placeholder('e.g., Dela'),
-                        TextInput::make('lastname')
-                            ->placeholder('e.g., Cruz')
+                        self::upperTextInput('middlename')
+                            ->placeholder('DELA'),
+                        self::upperTextInput('lastname')
+                            ->placeholder('CRUZ')
                             ->required(),
+                        self::upperTextInput('name_extension')
+                            ->label('Name Extension')
+                            ->placeholder('JR., SR., III')
+                            ->maxLength(20),
                         Select::make('gender')
+                            ->label('Sex')
                             ->options([
-                                'male' => 'Male',
-                                'female' => 'Female',
+                                'MALE' => 'MALE',
+                                'FEMALE' => 'FEMALE',
                             ]),
                         DatePicker::make('birthdate')
                             ->required(),
                         DatePicker::make('hired_date')
+                            ->label('Date Hired')
                             ->required(),
                         Select::make('designation_id')
+                            ->label('Position Title')
                             ->relationship('designation', 'title')
                             ->required()
                             ->columnSpanFull(),
@@ -61,15 +96,16 @@ class UserForm
                             ->relationship('department', 'name')
                             ->required()
                             ->columnSpanFull(),
+                    ])->columns(2),
 
-                    ])->columns(2), // Fits 3 names across one row nicely
-
-                // Group: Employee Account Details
                 Section::make('Employee Account Details')
                     ->description('Primary login and security information.')
                     ->schema([
                         TextInput::make('username')
-                            ->placeholder('e.g., juandelacruz')
+                            ->label('Username')
+                            ->placeholder('A685-00001')
+                            ->disabled()
+                            ->dehydrated()
                             ->required()
                             ->maxLength(255)
                             ->unique(
@@ -82,20 +118,6 @@ class UserForm
                                 'unique' => 'This username is already registered.',
                             ]),
 
-                        TextInput::make('email')
-                            ->placeholder('e.g., juandelacruz@gmail.com')
-                            ->email()
-                            ->required()
-                            ->unique(
-                                table: User::class,
-                                column: 'email',
-                                ignoreRecord: true,
-                            )
-                            ->validationAttribute('email address')
-                            ->validationMessages([
-                                'unique' => 'This email address is already registered.',
-                            ]),
-
                         TextInput::make('password')
                             ->password()
                             ->revealable()
@@ -104,7 +126,13 @@ class UserForm
                             ->dehydrated(fn ($state) => filled($state))
                             ->required(fn (string $context): bool => $context === 'create'),
                     ])->columns(2),
-
             ]);
+    }
+
+    protected static function upperTextInput(string $name): TextInput
+    {
+        return TextInput::make($name)
+            ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+            ->dehydrateStateUsing(fn ($state): ?string => filled($state) ? mb_strtoupper(trim((string) $state)) : null);
     }
 }

@@ -9,12 +9,9 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
-use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Monolog\Handler\GroupHandler;
 
 class DeductionsTable
 {
@@ -31,27 +28,26 @@ class DeductionsTable
                 TextColumn::make('description')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('created_at')
             ])
             ->filters([
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 ActionGroup::make([
-                        ViewAction::make(),
-                        EditAction::make(),
-                        // DeleteAction::make(),
-                    ])
+                    ViewAction::make(),
+                    EditAction::make(),
+                    // DeleteAction::make(),
+                ])
                     ->icon('heroicon-m-ellipsis-vertical') // The 3 dots icon
                     ->tooltip('Actions')
                     ->color('primary'),
             ])
             ->toolbarActions([
-                // BulkActionGroup::make([
-                //     DeleteBulkAction::make(),
-                //     ForceDeleteBulkAction::make(),
-                //     RestoreBulkAction::make(),
-                // ]),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                ]),
             ]);
     }
 }

@@ -32,31 +32,26 @@ class DepartmentsTable
                     ->badge()
                     ->searchable()
                     ->sortable(),
-                 TextColumn::make('created_at')
-                    ->label('Created At')
-                    ->searchable()
-                    ->sortable(),
-                
             ])
             ->filters([
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                 ActionGroup::make([
-                        ViewAction::make(),
-                        EditAction::make(),
-                        // DeleteAction::make(),
-                    ])
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    // DeleteAction::make(),
+                ])
                     ->icon('heroicon-m-ellipsis-vertical') // The 3 dots icon
                     ->tooltip('Actions')
                     ->color('primary'),
             ])
             ->toolbarActions([
-                    // BulkActionGroup::make([
-                    //     DeleteBulkAction::make(),
-                    //     ForceDeleteBulkAction::make(),
-                    //     RestoreBulkAction::make(),
-                    // ]),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                ]),
             ]);
     }
 }

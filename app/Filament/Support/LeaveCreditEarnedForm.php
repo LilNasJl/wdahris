@@ -26,7 +26,6 @@ class LeaveCreditEarnedForm
                                 ->required(),
 
                             TextInput::make('particulars')
-                                ->required()
                                 ->maxLength(255),
 
                             TextInput::make('earned')

@@ -33,7 +33,7 @@ class ServiceCreditExportController extends Controller
             'currentDetails' => [
                 'designation' => $current?->designation ?? $employee->designation?->title ?? '',
                 'status' => $current?->status ?? $employee->employment_type ?? '',
-                'salary' => $this->formatSalary($current?->salary ?? $employee->monthly_rate ?? $employee->daily_rate),
+                'salary' => $this->formatSalary($current?->salary ?? $employee->daily_rate),
                 'branch' => $current?->branch ?? '',
             ],
             'generatedDate' => now()->format('F d, Y'),

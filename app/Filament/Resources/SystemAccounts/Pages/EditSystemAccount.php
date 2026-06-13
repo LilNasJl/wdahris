@@ -9,6 +9,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\EditRecord;
+use STS\FilamentImpersonate\Actions\Impersonate;
 
 class EditSystemAccount extends EditRecord
 {
@@ -27,6 +28,12 @@ class EditSystemAccount extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Impersonate::make()
+                ->record($this->getRecord())
+                ->guard('web')
+                ->redirectTo(fn (): string => url('/hr'))
+                ->backTo(fn (): string => SystemAccountResource::getUrl('index')),
+
             DeleteAction::make()
                 ->visible(fn (User $record): bool => Filament::auth()->id() !== $record->id),
 

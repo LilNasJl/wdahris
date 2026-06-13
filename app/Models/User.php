@@ -25,13 +25,28 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         $role = strtolower((string) $this->role);
-        $isSuperAdmin = $role === 'superadmin' || $this->hasShieldRole(config('filament-shield.super_admin.name', 'super_admin'));
+        $isSuperAdmin = $this->isSuperAdminAccount();
 
         return match ($panel->getId()) {
             'hr' => $isSuperAdmin || $role === 'hr' || $this->hasShieldRole('hr'),
             'personnel' => $role === 'employee' || $this->hasShieldRole('employee'),
             default => false,
         };
+    }
+
+    public function canImpersonate(): bool
+    {
+        return $this->isSuperAdminAccount();
+    }
+
+    public function canBeImpersonated(): bool
+    {
+        if ($this->trashed() || $this->username === 'masteradmin' || auth()->id() === $this->id) {
+            return false;
+        }
+
+        return strtolower((string) $this->role) !== 'employee'
+            && ! $this->hasShieldRole('employee');
     }
 
     public function getFilamentName(): string
@@ -50,6 +65,12 @@ class User extends Authenticatable implements FilamentUser
         } catch (Throwable) {
             return false;
         }
+    }
+
+    protected function isSuperAdminAccount(): bool
+    {
+        return strtolower((string) $this->role) === 'superadmin'
+            || $this->hasShieldRole(config('filament-shield.super_admin.name', 'super_admin'));
     }
 
     protected static function booted(): void

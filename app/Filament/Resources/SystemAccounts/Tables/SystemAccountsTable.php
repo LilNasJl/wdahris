@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SystemAccounts\Tables;
 
+use App\Filament\Resources\SystemAccounts\SystemAccountResource;
 use App\Models\User;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -14,6 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use STS\FilamentImpersonate\Actions\Impersonate;
 
 class SystemAccountsTable
 {
@@ -61,6 +63,11 @@ class SystemAccountsTable
             ->recordActions([
                 ActionGroup::make([
                     EditAction::make(),
+
+                    Impersonate::make()
+                        ->guard('web')
+                        ->redirectTo(fn (): string => url('/hr'))
+                        ->backTo(fn (): string => SystemAccountResource::getUrl('index')),
 
                     DeleteAction::make()
                         ->visible(fn (User $record): bool => Filament::auth()->id() !== $record->id),

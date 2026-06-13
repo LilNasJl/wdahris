@@ -4,7 +4,12 @@ namespace App\Providers;
 
 use App\Filament\Resources\SystemAccounts\SystemAccountResource;
 use App\Filament\Resources\Users\UserResource;
+use App\Models\AccountLog;
+use App\Models\ActionLog;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 
@@ -32,6 +37,25 @@ class AppServiceProvider extends ServiceProvider
                 .$separator
                 .$this->formatShieldPermissionPart($subject, $case);
         });
+
+        $this->registerAuditLogListeners();
+    }
+
+    protected function registerAuditLogListeners(): void
+    {
+        Event::listen(Logout::class, function (Logout $event): void {
+            AccountLog::record($event->user, 'logout');
+        });
+
+        foreach (['created', 'updated', 'deleted', 'restored', 'forceDeleted'] as $event) {
+            Event::listen("eloquent.{$event}: *", function (string $eventName, array $payload): void {
+                $model = $payload[0] ?? null;
+
+                if ($model instanceof Model) {
+                    ActionLog::recordModelEvent($eventName, $model);
+                }
+            });
+        }
     }
 
     protected function formatShieldPermissionPart(string $value, string $case): string

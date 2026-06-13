@@ -44,7 +44,10 @@ class ServiceCreditsProfileCards extends StatsOverviewWidget
             ->where('employee_id', $this->employeeId)
             ->exists();
 
-        $designation = $current?->designation ?? $employee?->designation?->title ?? 'Not set';
+        $designation = $this->formatPositionWithStep(
+            $current?->designation ?? $employee?->designation?->title,
+            $current?->salary_step ?? $employee?->salary_step,
+        );
         $status = $current?->status ?? $employee?->employment_type ?? 'Not set';
         $salary = $this->formatSalary($this->getSalaryValue($employee, $current, $hasServiceCredits));
         $branch = $current?->branch ?? 'Not set';
@@ -81,10 +84,10 @@ class ServiceCreditsProfileCards extends StatsOverviewWidget
         }
 
         if (! $hasServiceCredits) {
-            return (float) $employee->daily_rate * 22;
+            return $employee->daily_rate;
         }
 
-        return $current?->salary ?? $employee->monthly_rate ?? ((float) $employee->daily_rate * 22);
+        return $current?->salary ?? $employee->daily_rate;
     }
 
     protected function formatSalary(mixed $salary): string
@@ -94,5 +97,16 @@ class ServiceCreditsProfileCards extends StatsOverviewWidget
         }
 
         return 'PHP '.number_format((float) $salary, 2);
+    }
+
+    protected function formatPositionWithStep(?string $position, mixed $step): string
+    {
+        $position = filled($position) ? $position : 'Not set';
+
+        if (blank($step)) {
+            return $position;
+        }
+
+        return "{$position} / Step {$step}";
     }
 }

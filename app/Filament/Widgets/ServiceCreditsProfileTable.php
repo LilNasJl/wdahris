@@ -47,11 +47,12 @@ class ServiceCreditsProfileTable extends TableWidget
                     ->sortable(),
 
                 TextColumn::make('designation')
-                    ->label('Designation')
+                    ->label('Position Title')
                     ->searchable()
                     ->wrap(),
 
                 TextColumn::make('status')
+                    ->label('Employment Status')
                     ->searchable()
                     ->badge(),
             ])

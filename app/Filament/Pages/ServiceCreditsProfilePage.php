@@ -133,9 +133,10 @@ class ServiceCreditsProfilePage extends Page
 
         return [
             'designation' => $current?->designation ?? $this->employee->designation?->title,
+            'salary_step' => $current?->salary_step ?? $this->employee->salary_step,
             'status' => $current?->status ?? $this->employee->employment_type,
-            'salary' => $current?->salary ?? $this->employee->monthly_rate ?? ((float) $this->employee->daily_rate * 22),
-            'station_place' => $current?->station_place,
+            'salary' => $current?->salary ?? $this->employee->daily_rate,
+            'station_place' => $current?->station_place ?? $this->employee->office_assignment,
             'branch' => $current?->branch,
         ];
     }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Models\Employee;
 use App\Models\User;
 use App\Notifications\RecordUpdatedNotification;
 use Filament\Actions\DeleteAction;
@@ -16,7 +17,11 @@ class EditUser extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $data['name'] = $data['username'];
+        $employeeIdNumber = Employee::employeeIdFromUid($this->record->employee?->uid) ?? $this->record->username;
+
+        $data['username'] = $employeeIdNumber;
+        $data['name'] = $employeeIdNumber;
+        $data['email'] = $this->systemEmailForUsername($employeeIdNumber);
 
         return $data;
     }
@@ -32,15 +37,26 @@ class EditUser extends EditRecord
 
     protected function afterSave(): void
     {
-        $this->record->employee?->update(['email' => $this->record->email]);
+        $employeeIdNumber = Employee::employeeIdFromUid($this->record->employee?->uid) ?? $this->record->username;
 
-        $users = User::all();
+        if (filled($employeeIdNumber) && $employeeIdNumber !== $this->record->username) {
+            $this->record->forceFill([
+                'username' => $employeeIdNumber,
+                'name' => $employeeIdNumber,
+                'email' => $this->systemEmailForUsername($employeeIdNumber),
+            ])->save();
+        }
 
-        foreach ($users as $user) {
+        User::query()->each(function (User $user): void {
             $user->notify(new RecordUpdatedNotification(
                 'User updated',
                 'A user record has been updated.'
             ));
-        }
+        });
+    }
+
+    private function systemEmailForUsername(string $username): string
+    {
+        return strtolower(str_replace('-', '', $username)).'@wda.local';
     }
 }

@@ -15,6 +15,7 @@ class ServiceCredits extends Model
         'from_date',
         'to_date',
         'designation',
+        'salary_step',
         'status',
         'salary',
         'station_place',
@@ -31,6 +32,7 @@ class ServiceCredits extends Model
             'from_date' => 'date',
             'to_date' => 'date',
             'separation_date' => 'date',
+            'salary_step' => 'integer',
             'salary' => 'decimal:2',
         ];
     }
@@ -71,6 +73,8 @@ class ServiceCredits extends Model
 
         $updates = [
             'employment_type' => $current->status,
+            'salary_step' => $current->salary_step,
+            'office_assignment' => $current->station_place,
         ];
 
         $designationId = Designation::query()
@@ -82,10 +86,10 @@ class ServiceCredits extends Model
         }
 
         if (filled($current->salary)) {
-            $monthlySalary = (float) $current->salary;
+            $dailySalary = (float) $current->salary;
 
-            $updates['monthly_rate'] = $monthlySalary;
-            $updates['daily_rate'] = round($monthlySalary / 22, 2);
+            $updates['daily_rate'] = round($dailySalary, 2);
+            $updates['monthly_rate'] = round($dailySalary * 22, 2);
         }
 
         return $employee->forceFill($updates)->save();

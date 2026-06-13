@@ -50,51 +50,10 @@ class UsersTable
                     ->label('Username')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('email')
-                    ->label('Email')
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Created At')
-                    ->searchable()
+                    ->dateTime()
                     ->sortable(),
-                // // Row index
-                // TextColumn::make('index')
-                //     ->label('#')
-                //     ->rowIndex(),
-
-                // // FULL NAME (fixed version)
-                // TextColumn::make('firstname')
-                //     ->label('Employee Name')
-                //     ->formatStateUsing(function ($record) {
-                //         return trim(
-                //             $record->firstname . ' ' .
-                //             ($record->middlename ? $record->middlename . ' ' : '') .
-                //             $record->lastname
-                //         );
-                //     })
-                //     ->searchable(query: function (Builder $query, string $search) {
-                //         $query->where(function ($q) use ($search) {
-                //             $q->where('firstname', 'like', "%{$search}%")
-                //               ->orWhere('middlename', 'like', "%{$search}%")
-                //               ->orWhere('lastname', 'like', "%{$search}%");
-                //         });
-                //     })
-                //     ->sortable(query: function (Builder $query, string $direction) {
-                //         $query->orderBy('firstname', $direction);
-                //     }),
-
-                // // Designation
-                // TextColumn::make('designation.title')
-                //     ->label('Designation')
-                //     ->sortable()
-                //     ->searchable(),
-
-                // // Department
-                // TextColumn::make('department.name')
-                //     ->label('Department')
-                //     ->sortable()
-                //     ->searchable(),
             ])
             ->filters([
                 TrashedFilter::make(),
@@ -105,15 +64,13 @@ class UsersTable
                     EditAction::make(),
                 ])
                     ->icon(Heroicon::EllipsisHorizontal),
-
             ])
-
             ->toolbarActions([
-                // BulkActionGroup::make([
-                //     DeleteBulkAction::make(),
-                //     ForceDeleteBulkAction::make(),
-                //     RestoreBulkAction::make(),
-                // ]),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                ]),
             ]);
     }
 }
