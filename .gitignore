@@ -23,3 +23,7 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Ignore Windows NTFS alternate data streams
+*:Zone.Identifier
+*Zone.Identifier
+**/*:Zone.Identifier
