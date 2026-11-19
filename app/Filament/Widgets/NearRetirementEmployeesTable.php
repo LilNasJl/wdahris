@@ -29,11 +29,19 @@ class NearRetirementEmployeesTable extends TableWidget
                     ->label('#')
                     ->rowIndex(),
                 TextColumn::make('full_name')
-                    ->label('Employee Fullname'),
+                    ->label('Employee Fullname')
+                    ->description(fn (Employee $record): ?string => $record->designation?->name ?? $record->department?->name)
+                    ->weight('medium'),
                 TextColumn::make('age')
                     ->label('Age')
                     ->state(fn (Employee $record): int => (int) $record->birthdate?->age)
-                    ->badge(),
-            ]);
+                    ->badge()
+                    ->color('warning'),
+            ])
+            ->emptyStateHeading('No employees near retirement')
+            ->emptyStateDescription('All active personnel are currently below 60 years of age.')
+            ->emptyStateIcon('heroicon-o-shield-check')
+            ->paginated(false);
     }
 }
+

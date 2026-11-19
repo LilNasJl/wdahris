@@ -5,16 +5,23 @@ namespace App\Filament\Pages;
 use App\Filament\Widgets\BirthdayEmployeesTable;
 use App\Filament\Widgets\DashboardCard;
 use App\Filament\Widgets\ExpiringContractsTable;
+use App\Filament\Widgets\HeadCountPerDept;
 use App\Filament\Widgets\NearRetirementEmployeesTable;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\View\View;
 
 class Dashboard extends Page
 {
     protected string $view = 'filament.pages.dashboard';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Squares2x2;
+
+    public function getHeader(): ?View
+    {
+        return view('filament.pages.dashboard-header');
+    }
 
     public function getHeaderWidgetsColumns(): int|array
     {
@@ -31,6 +38,8 @@ class Dashboard extends Page
             NearRetirementEmployeesTable::class,
             ExpiringContractsTable::class,
             BirthdayEmployeesTable::class,
+            HeadCountPerDept::class,
         ];
     }
 }
+

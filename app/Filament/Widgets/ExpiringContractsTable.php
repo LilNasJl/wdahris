@@ -31,11 +31,20 @@ class ExpiringContractsTable extends TableWidget
                     ->label('#')
                     ->rowIndex(),
                 TextColumn::make('full_name')
-                    ->label('Employee Fullname'),
+                    ->label('Employee Fullname')
+                    ->description(fn (Employee $record): ?string => $record->employment_type . ($record->department ? ' • ' . $record->department->acronym : ''))
+                    ->weight('medium'),
                 TextColumn::make('days_remaining')
                     ->label('Days Left')
                     ->state(fn (Employee $record): int => max(0, now()->startOfDay()->diffInDays($record->employment_end_date, false)))
-                    ->badge(),
-            ]);
+                    ->badge()
+                    ->color(fn (int $state): string => $state <= 7 ? 'danger' : 'warning')
+                    ->formatStateUsing(fn (int $state): string => $state . ' ' . str('day')->plural($state)),
+            ])
+            ->emptyStateHeading('No expiring contracts')
+            ->emptyStateDescription('No casual or job order contracts expiring within the next 30 days.')
+            ->emptyStateIcon('heroicon-o-check-badge')
+            ->paginated(false);
     }
 }
+

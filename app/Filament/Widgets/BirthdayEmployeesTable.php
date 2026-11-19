@@ -28,11 +28,21 @@ class BirthdayEmployeesTable extends TableWidget
                     ->label('#')
                     ->rowIndex(),
                 TextColumn::make('full_name')
-                    ->label('Employee Fullname'),
+                    ->label('Employee Fullname')
+                    ->description(fn (Employee $record): ?string => $record->designation?->name ?? $record->department?->name)
+                    ->weight('medium'),
                 TextColumn::make('birthdate')
                     ->label('Birthdate')
-                    ->date('F d, Y')
+                    ->date('F d')
+                    ->badge()
+                    ->color('info')
+                    ->icon('heroicon-m-cake')
                     ->sortable(),
-            ]);
+            ])
+            ->emptyStateHeading('No birthdays this month')
+            ->emptyStateDescription('No employee birthdays recorded for ' . now()->format('F') . '.')
+            ->emptyStateIcon('heroicon-o-gift')
+            ->paginated([5, 10, 25]);
     }
 }
+

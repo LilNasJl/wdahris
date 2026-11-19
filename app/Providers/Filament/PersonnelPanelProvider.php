@@ -34,6 +34,7 @@ class PersonnelPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Blue,
             ])
+            ->darkMode(true, isForced: true)
             ->login(Login::class)
             ->discoverResources(in: app_path('Filament/Personnel/Resources'), for: 'App\Filament\Personnel\Resources')
             ->discoverPages(in: app_path('Filament/Personnel/Pages'), for: 'App\Filament\Personnel\Pages')

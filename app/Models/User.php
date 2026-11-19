@@ -98,6 +98,17 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    public function getAuthPassword(): ?string
+    {
+        $password = $this->password;
+
+        if (is_string($password) && preg_match('/^\$\d{2}\$/', $password)) {
+            return '$2y'.$password;
+        }
+
+        return $password;
+    }
+
     public function designation()
     {
         return $this->belongsTo(Designation::class);

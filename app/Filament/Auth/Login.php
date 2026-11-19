@@ -3,11 +3,13 @@
 namespace App\Filament\Auth;
 
 use App\Models\AccountLog;
+use Filament\Actions\Action;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
+use Filament\Support\Enums\IconPosition;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Blade;
@@ -30,8 +32,9 @@ class Login extends BaseLogin
     protected function getEmailFormComponent(): Component
     {
         return TextInput::make('username')
-            ->label('Username')
-            ->prefixIcon('heroicon-m-user-circle')
+            ->label('Username or ID #')
+            ->placeholder('Username or 00001')
+            ->prefixIcon('heroicon-m-user')
             ->prefixIconColor('primary')
             ->required()
             ->autocomplete('username')
@@ -46,6 +49,7 @@ class Login extends BaseLogin
     {
         return TextInput::make('password')
             ->label(__('filament-panels::auth/pages/login.form.password.label'))
+            ->placeholder('Enter your password')
             ->prefixIcon('heroicon-m-lock-closed')
             ->prefixIconColor('primary')
             ->hint(filament()->hasPasswordReset() ? new HtmlString(Blade::render('<x-filament::link :href="filament()->getRequestPasswordResetUrl()" tabindex="-1"> {{ __(\'filament-panels::auth/pages/login.actions.request_password_reset.label\') }}</x-filament::link>')) : null)
@@ -53,6 +57,15 @@ class Login extends BaseLogin
             ->revealable(filament()->arePasswordsRevealable())
             ->autocomplete('current-password')
             ->required();
+    }
+
+    protected function getAuthenticateFormAction(): Action
+    {
+        return Action::make('authenticate')
+            ->label('Sign in')
+            ->icon('heroicon-m-arrow-right')
+            ->iconPosition(IconPosition::After)
+            ->submit('authenticate');
     }
 
     protected function getCredentialsFromFormData(array $data): array
@@ -74,7 +87,15 @@ class Login extends BaseLogin
     {
         $password = $this->data['password'] ?? null;
 
-        $response = parent::authenticate();
+        try {
+            $response = parent::authenticate();
+        } catch (\RuntimeException $exception) {
+            if (str_contains($exception->getMessage(), 'Bcrypt algorithm')) {
+                $this->throwFailureValidationException();
+            }
+
+            throw $exception;
+        }
 
         if (! $response) {
             return null;

@@ -29,7 +29,7 @@ class HrPanelProvider extends PanelProvider
             ->default()
             ->id('hr')
             ->path('hr')
-            ->brandName('Water District Asuncion - HRIS')
+            ->brandName('Human Resource Management System')
             ->brandLogo(asset('image/wdatransparent.png'))
             ->brandLogoHeight('42px')
             ->globalSearch(false)
@@ -59,6 +59,7 @@ class HrPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Sky,
             ])
+            ->darkMode(true, isForced: true)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

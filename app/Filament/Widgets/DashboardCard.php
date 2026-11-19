@@ -24,36 +24,55 @@ class DashboardCard extends StatsOverviewWidget
 
     protected function getStats(): array
     {
+        $activeCount = $this->activeEmployeesQuery()->count();
+        $permanentCount = $this->activeEmployeesQuery()->where('employment_type', 'Permanent')->count();
+        $casualCount = $this->activeEmployeesQuery()->where('employment_type', 'Casual')->count();
+        $jobOrderCount = $this->activeEmployeesQuery()->where('employment_type', 'Job Order')->count();
+        $temporaryCount = $this->activeEmployeesQuery()->where('employment_type', 'Temporary')->count();
+        $coterminousCount = $this->activeEmployeesQuery()->where('employment_type', 'Coterminous')->count();
+
         return [
-            Stat::make('Total Active', $this->activeEmployeesQuery()->count())
+            Stat::make('Total Active', $activeCount)
+                ->description('Active workforce')
+                ->descriptionIcon('heroicon-m-user-group')
                 ->icon('heroicon-s-user-group')
                 ->color('primary')
-                ->extraAttributes(['class' => '[&_.fi-wi-stats-overview-stat-value]:text-primary-600 dark:[&_.fi-wi-stats-overview-stat-value]:text-primary-400']),
+                ->extraAttributes(['class' => 'wda-stat-card wda-stat-total-active']),
 
-            Stat::make('Permanent', $this->activeEmployeesQuery()->where('employment_type', 'Permanent')->count())
+            Stat::make('Permanent', $permanentCount)
+                ->description('Regular plantilla')
+                ->descriptionIcon('heroicon-m-check-badge')
                 ->icon('heroicon-s-identification')
                 ->color('success')
-                ->extraAttributes(['class' => '[&_.fi-wi-stats-overview-stat-value]:text-success-600 dark:[&_.fi-wi-stats-overview-stat-value]:text-success-400']),
+                ->extraAttributes(['class' => 'wda-stat-card wda-stat-permanent']),
 
-            Stat::make('Casual', $this->activeEmployeesQuery()->where('employment_type', 'Casual')->count())
+            Stat::make('Casual', $casualCount)
+                ->description('Casual appointees')
+                ->descriptionIcon('heroicon-m-briefcase')
                 ->icon('heroicon-s-briefcase')
                 ->color('warning')
-                ->extraAttributes(['class' => '[&_.fi-wi-stats-overview-stat-value]:text-warning-600 dark:[&_.fi-wi-stats-overview-stat-value]:text-warning-400']),
+                ->extraAttributes(['class' => 'wda-stat-card wda-stat-casual']),
 
-            Stat::make('Job Order', $this->activeEmployeesQuery()->where('employment_type', 'Job Order')->count())
+            Stat::make('Job Order', $jobOrderCount)
+                ->description('Contract of service')
+                ->descriptionIcon('heroicon-m-clipboard-document-check')
                 ->icon('heroicon-s-clipboard-document-list')
                 ->color('info')
-                ->extraAttributes(['class' => '[&_.fi-wi-stats-overview-stat-value]:text-info-600 dark:[&_.fi-wi-stats-overview-stat-value]:text-info-400']),
+                ->extraAttributes(['class' => 'wda-stat-card wda-stat-job-order']),
 
-            Stat::make('Temporary', $this->activeEmployeesQuery()->where('employment_type', 'Temporary')->count())
+            Stat::make('Temporary', $temporaryCount)
+                ->description('Temporary status')
+                ->descriptionIcon('heroicon-m-clock')
                 ->icon('heroicon-s-clock')
                 ->color('gray')
-                ->extraAttributes(['class' => '[&_.fi-wi-stats-overview-stat-value]:text-gray-600 dark:[&_.fi-wi-stats-overview-stat-value]:text-gray-300']),
+                ->extraAttributes(['class' => 'wda-stat-card wda-stat-temporary']),
 
-            Stat::make('Coterminous', $this->activeEmployeesQuery()->where('employment_type', 'Coterminous')->count())
+            Stat::make('Coterminous', $coterminousCount)
+                ->description('Co-terminus tenure')
+                ->descriptionIcon('heroicon-m-arrows-right-left')
                 ->icon('heroicon-s-arrows-right-left')
                 ->color('danger')
-                ->extraAttributes(['class' => '[&_.fi-wi-stats-overview-stat-value]:text-danger-600 dark:[&_.fi-wi-stats-overview-stat-value]:text-danger-400']),
+                ->extraAttributes(['class' => 'wda-stat-card wda-stat-coterminous']),
         ];
     }
 
@@ -61,12 +80,16 @@ class DashboardCard extends StatsOverviewWidget
     {
         return Employee::query()
             ->whereHas('user', fn (Builder $query): Builder => $query->where('role', 'employee'))
-            ->whereNotIn('employment_type', [
-                'Retired',
-                'Resigned',
-                'Terminated',
-                'Force Resigned',
-                'Death of Employee',
-            ]);
+            ->where(function (Builder $query): void {
+                $query->whereNull('employment_type')
+                    ->orWhereNotIn('employment_type', [
+                        'Retired',
+                        'Resigned',
+                        'Terminated',
+                        'Force Resigned',
+                        'Death of Employee',
+                    ]);
+            });
     }
 }
+
