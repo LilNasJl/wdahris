@@ -10,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 
 class UserForm
@@ -42,7 +43,7 @@ class UserForm
                                 $set('username', $username);
                             })
                             ->validationAttribute('employee ID')
-                            ->rules(fn (?User $record): array => [
+                            ->rules(fn (?Model $record): array => [
                                 function (string $attribute, mixed $value, \Closure $fail) use ($record): void {
                                     $uid = Employee::normalizeEmployeeUid($value);
 
@@ -52,9 +53,13 @@ class UserForm
                                         return;
                                     }
 
+                                    $employee = $record instanceof Employee
+                                        ? $record
+                                        : ($record instanceof User ? $record->employee : null);
+
                                     $exists = Employee::withTrashed()
                                         ->where('uid', $uid)
-                                        ->when($record?->employee, fn ($query, Employee $employee) => $query->whereKeyNot($employee->getKey()))
+                                        ->when($employee?->getKey(), fn ($query, $key) => $query->whereKeyNot($key))
                                         ->exists();
 
                                     if ($exists) {
