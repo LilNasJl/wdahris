@@ -3,7 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
-use Filament\Http\Middleware\Authenticate;
+use App\Http\Middleware\RedirectToUnifiedLogin;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -35,7 +35,7 @@ class PersonnelPanelProvider extends PanelProvider
                 'primary' => Color::Blue,
             ])
             ->darkMode(true, isForced: true)
-            ->login(Login::class)
+            ->homeUrl(fn () => route('filament.hr.auth.login'))
             ->discoverResources(in: app_path('Filament/Personnel/Resources'), for: 'App\Filament\Personnel\Resources')
             ->discoverPages(in: app_path('Filament/Personnel/Pages'), for: 'App\Filament\Personnel\Pages')
             ->pages([
@@ -58,7 +58,7 @@ class PersonnelPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                RedirectToUnifiedLogin::class,
             ]);
     }
 }

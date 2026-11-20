@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::redirect('/', '/hr');
+Route::redirect('/login', '/hr/login')->name('login');
+Route::redirect('/personnel/login', '/hr/login');
 
 Route::middleware('auth')->group(function (): void {
     Route::get(

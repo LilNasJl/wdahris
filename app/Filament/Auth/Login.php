@@ -215,18 +215,24 @@ class Login extends BaseLogin
                 ->delete();
         }
 
-        // If user logged in from another panel (e.g. employee on HR panel), redirect to their authorized panel
-        if ($targetPanel && $targetPanel->getId() !== $currentPanel->getId()) {
-            return new class($targetPanel->getUrl()) implements LoginResponse {
-                public function __construct(protected string $url) {}
+        // Determine target redirect URL based on user's authorized panel
+        $intended = session()->get('url.intended');
+        $targetPath = '/' . ltrim($targetPanel ? $targetPanel->getPath() : '', '/');
 
-                public function toResponse($request)
-                {
-                    return redirect()->intended($this->url);
-                }
-            };
+        $redirectUrl = $targetPanel ? $targetPanel->getUrl() : Filament::getUrl();
+        if ($intended && filled($targetPath) && str_contains(parse_url($intended, PHP_URL_PATH) ?? '', $targetPath)) {
+            $redirectUrl = $intended;
         }
 
-        return app(LoginResponse::class);
+        session()->forget('url.intended');
+
+        return new class($redirectUrl) implements LoginResponse {
+            public function __construct(protected string $url) {}
+
+            public function toResponse($request)
+            {
+                return redirect()->to($this->url);
+            }
+        };
     }
 }
