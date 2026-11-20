@@ -11,6 +11,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class DashboardCards extends StatsOverviewWidget
 {
+    protected static ?int $sort = 1;
+
     protected int|string|array $columnSpan = 'full';
 
     protected function getColumns(): int|array|null
@@ -39,17 +41,24 @@ class DashboardCards extends StatsOverviewWidget
 
         return [
             Stat::make('Vacation Leave Points', number_format($credits['vacation'], 3))
-                ->icon(Heroicon::CalendarDays),
+                ->description('Available VL balance')
+                ->descriptionIcon(Heroicon::CalendarDays)
+                ->color('info'),
 
             Stat::make('Sick Leave Points', number_format($credits['sick'], 3))
-                ->icon(Heroicon::Heart),
+                ->description('Available SL balance')
+                ->descriptionIcon(Heroicon::Heart)
+                ->color('success'),
 
             Stat::make('Total Leave Credits', number_format($credits['total'], 3))
-                ->icon(Heroicon::ClipboardDocumentList),
+                ->description('Combined available points')
+                ->descriptionIcon(Heroicon::ClipboardDocumentList)
+                ->color('primary'),
 
-            Stat::make('Pending Leave Request', $pendingLeaveRequests)
-                ->icon(Heroicon::PaperAirplane),
-
+            Stat::make('Pending Leave Requests', (string) $pendingLeaveRequests)
+                ->description($pendingLeaveRequests > 0 ? 'Awaiting HR approval' : 'All requests processed')
+                ->descriptionIcon($pendingLeaveRequests > 0 ? Heroicon::Clock : Heroicon::CheckBadge)
+                ->color($pendingLeaveRequests > 0 ? 'warning' : 'gray'),
         ];
     }
 }

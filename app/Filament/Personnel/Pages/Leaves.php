@@ -30,6 +30,7 @@ class Leaves extends Page
             CreateAction::make('sendLeaveRequest')
                 ->label('Send Leave Request')
                 ->icon(Heroicon::PaperAirplane)
+                ->color('primary')
                 ->model(LeaveRecord::class)
                 ->modalHeading('Send Leave Request')
                 ->schema(PersonnelLeaveForm::schema())
@@ -59,7 +60,7 @@ class Leaves extends Page
     }
 
     #[Override]
-    protected function getHeaderWidgets(): array
+    protected function getFooterWidgets(): array
     {
         return [
             MyLeaveRequestsTable::class,

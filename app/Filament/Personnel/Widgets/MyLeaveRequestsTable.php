@@ -11,6 +11,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -19,6 +20,8 @@ use Illuminate\Validation\ValidationException;
 
 class MyLeaveRequestsTable extends TableWidget
 {
+    protected static ?int $sort = 2;
+
     public int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
@@ -39,7 +42,14 @@ class MyLeaveRequestsTable extends TableWidget
 
                 TextColumn::make('leave_type')
                     ->label('Leave Type')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Vacation Leave' => 'info',
+                        'Sick Leave' => 'success',
+                        'Halfday Leave' => 'warning',
+                        'Birthday Leave' => 'primary',
+                        default => 'gray',
+                    }),
 
                 TextColumn::make('leave_from')
                     ->label('From')
@@ -95,6 +105,8 @@ class MyLeaveRequestsTable extends TableWidget
                         ->visible(fn (Leave $record): bool => $record->status === 'Pending'),
                 ]),
             ])
-            ->emptyStateHeading('No leave requests yet');
+            ->emptyStateHeading('No Leave Requests Yet')
+            ->emptyStateDescription('You have not filed any leave requests. Click "Send Leave Request" above to submit an application.')
+            ->emptyStateIcon(Heroicon::DocumentText);
     }
 }

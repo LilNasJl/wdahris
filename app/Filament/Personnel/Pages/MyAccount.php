@@ -39,7 +39,9 @@ class MyAccount extends Page
                 Group::make()
                     ->schema([
                         TextInput::make('username')
-                            ->label('Username')
+                            ->label('Username or Company ID')
+                            ->placeholder('e.g., A685-00048')
+                            ->prefixIcon('heroicon-m-user')
                             ->required()
                             ->unique(
                                 table: User::class,
@@ -49,6 +51,9 @@ class MyAccount extends Page
                             ->maxLength(255),
 
                         TextInput::make('email')
+                            ->label('Email Address')
+                            ->placeholder('e.g., employee@wda.local')
+                            ->prefixIcon('heroicon-m-envelope')
                             ->email()
                             ->required()
                             ->unique(
@@ -59,6 +64,9 @@ class MyAccount extends Page
                             ->maxLength(255),
 
                         TextInput::make('password')
+                            ->label('New Password')
+                            ->placeholder('Leave empty to keep current password')
+                            ->prefixIcon('heroicon-m-lock-closed')
                             ->password()
                             ->revealable()
                             ->confirmed()
@@ -66,7 +74,9 @@ class MyAccount extends Page
                             ->dehydrated(fn ($state): bool => filled($state)),
 
                         TextInput::make('password_confirmation')
-                            ->label('Confirm Password')
+                            ->label('Confirm New Password')
+                            ->placeholder('Repeat your new password')
+                            ->prefixIcon('heroicon-m-shield-check')
                             ->password()
                             ->revealable()
                             ->dehydrated(false),
